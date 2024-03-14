@@ -1,0 +1,22 @@
+version: '3.4'
+
+services:
+
+  webapplication:
+    container_name: validation_service
+    build:
+      context: .
+      dockerfile: Dockerfile
+    privileged: true
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
+      FileStoreConfigurationOptions__ContainerName: ${FileStoreConfigurationOptions__ContainerName}
+      AzureAccessKeyConfigurationOptions__AccessKey: ${AzureAccessKeyConfigurationOptions__AccessKey}
+      ASPNETCORE_URLS: ${ASPNETCORE_URLS}
+    ports:
+      - "80:80"
+    networks:
+      - system-network
+      
+networks:
+  system-network:
