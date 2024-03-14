@@ -5,6 +5,8 @@ using Microsoft.Extensions.DependencyInjection;
 using WebApi.Infrastructure.Extensions;
 using WebApi.Infrastructure.Middleware;
 using DependencyInjection.Extensions;
+using Microsoft.AspNetCore.DataProtection;
+using System.IO;
 
 namespace WebApi
 {
@@ -26,20 +28,24 @@ namespace WebApi
 
             services.ConfigureAllApplicationOptions(this.Configuration);
             services.AddBusinessServices();
+            services.AddHealthChecks();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             app.UseMiddleware<ExceptionHandlerMiddleware>();
 
+            app.UseHttpsRedirection();
             app.UseSwagger();
             app.UseSwaggerUI();
-            
-            app.UseHttpsRedirection();
-
+           
             app.UseRouting();
 
-            app.UseEndpoints(endpoints => endpoints.MapControllers());
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapHealthChecks("/healthz");
+                endpoints.MapControllers();
+            });
         }
     }
 }
