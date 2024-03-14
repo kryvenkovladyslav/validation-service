@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using WebApi.Infrastructure.Extensions;
+using WebApi.Infrastructure.Middleware;
+using DependencyInjection.Extensions;
 
 namespace WebApi
 {
@@ -21,16 +23,18 @@ namespace WebApi
 
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen();
+
+            services.ConfigureAllApplicationOptions(this.Configuration);
+            services.AddBusinessServices();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            if (env.IsDevelopment())
-            {
-                app.UseSwagger();
-                app.UseSwaggerUI();
-            }
+            app.UseMiddleware<ExceptionHandlerMiddleware>();
 
+            app.UseSwagger();
+            app.UseSwaggerUI();
+            
             app.UseHttpsRedirection();
 
             app.UseRouting();
