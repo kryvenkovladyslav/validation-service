@@ -1,22 +1,33 @@
 ﻿using System.IO;
-using Domain.Models;
 using System.Threading.Tasks;
+using System.Xml;
 
 namespace Domain.Abstract
 {
-    public interface IDocumentValidationStrategy
+    // <summary>
+    /// Provides methods for indicating if the document can be processed by the validator
+    /// </summary>
+    public interface IDocumentValidationStrategy<TSettings>
+        where TSettings : class
     {
         /// <summary>
-        /// Provides a boolean result if the file can be processed 
+        /// Indicates if the required document can be processed 
         /// </summary>
-        /// <param name="documentStream">A required document to be processed</param>
-        /// <returns>True if a file can be processed</returns>
+        /// <param name="documentStream">The stream represents the document for validation process</param>
+        /// <returns>True if the document can be processed, otherwise False</returns>
         public bool CanProcess(Stream documentStream);
 
         /// <summary>
-        /// Asynchronously processes the file
+        /// Asynchronously process the document if the document can be processed
         /// </summary>
-        /// <returns>Provided validation result</returns>
-        public Task<ValidationResult> ProcessAsync(RequestModel requestModel);
+        /// <param name="documentStream">The stream represents the document for validation process</param>
+        /// <param name="settings">The settings are used by Reader while validating the document if needed</param>
+        public Task ProcessAsync(Stream documentStream, TSettings settings = default);
     }
+
+    // <summary>
+    /// Provides methods for indicating if the document can be processed by the validator
+    /// </summary>
+    public interface IXmlDocumentValidationStrategy : IDocumentValidationStrategy<XmlReaderSettings>
+    { }
 }

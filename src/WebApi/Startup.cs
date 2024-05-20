@@ -5,8 +5,6 @@ using Microsoft.Extensions.DependencyInjection;
 using WebApi.Infrastructure.Extensions;
 using WebApi.Infrastructure.Middleware;
 using DependencyInjection.Extensions;
-using Microsoft.AspNetCore.DataProtection;
-using System.IO;
 
 namespace WebApi
 {

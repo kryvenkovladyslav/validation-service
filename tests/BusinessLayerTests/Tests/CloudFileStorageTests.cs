@@ -15,7 +15,7 @@ namespace BusinessLayerTests.Tests
     public sealed class CloudFileStorageTests
     {
         private readonly Mock<IAzureBlobService> blobService;
-        private readonly IOptionsMonitor<DocumentStorageConfiguration> optionsMonitor;
+        private readonly IOptionsMonitor<DocumentStorageConfigurationOptions> optionsMonitor;
 
         public CloudFileStorageTests()
         {
@@ -26,14 +26,14 @@ namespace BusinessLayerTests.Tests
         [Fact]
         public void FileStoreConfigurationOptions_HasActualPositionValue_ReturnsTrue()
         {
-            Assert.True(!string.IsNullOrEmpty(DocumentStorageConfiguration.Position));
+            Assert.True(!string.IsNullOrEmpty(DocumentStorageConfigurationOptions.Position));
         }
 
         [Fact]
         public void CloudFileStorage_HasNullParameterInCtor_ThrowsArgumentNullException()
         {
-            var creationWithoutFirstParameter = () => new CloudFileStorage(null, this.optionsMonitor);
-            var creationWithoutSecondParameter = () => new CloudFileStorage(this.blobService.Object, null);
+            var creationWithoutFirstParameter = () => new AzureDocumentStorage(null, this.optionsMonitor);
+            var creationWithoutSecondParameter = () => new AzureDocumentStorage(this.blobService.Object, null);
 
             Assert.Throws<ArgumentNullException>(creationWithoutFirstParameter);
             Assert.Throws<ArgumentNullException>(creationWithoutSecondParameter);
@@ -47,7 +47,7 @@ namespace BusinessLayerTests.Tests
             this.blobService.Setup(service => service.ExistsAsync(It.IsAny<IBlobRequestModel>(), default)).ReturnsAsync(expectedResult);
             var fileStorage = this.CreateCloudFileStorage();
 
-            var result = await fileStorage.FindExistsAsync(documentFilePath);
+            var result = await fileStorage.ExistsAsync(documentFilePath);
 
             Assert.Equal(expectedResult, result);
         }
@@ -77,16 +77,16 @@ namespace BusinessLayerTests.Tests
             await Assert.ThrowsAsync<AzureBlobNotExistException>(result);
         }
 
-        private IOptionsMonitor<DocumentStorageConfiguration> CreateFileStoreConfigurationOptions(string containerName)
+        private IOptionsMonitor<DocumentStorageConfigurationOptions> CreateFileStoreConfigurationOptions(string containerName)
         {
-            var optionsMonitor = new Mock<IOptionsMonitor<DocumentStorageConfiguration>>();
-            optionsMonitor.Setup(monitor => monitor.CurrentValue).Returns(new DocumentStorageConfiguration { ContainerName = containerName });
+            var optionsMonitor = new Mock<IOptionsMonitor<DocumentStorageConfigurationOptions>>();
+            optionsMonitor.Setup(monitor => monitor.CurrentValue).Returns(new DocumentStorageConfigurationOptions { ContainerName = containerName });
             return optionsMonitor.Object;
         }
 
-        private IFileStorage CreateCloudFileStorage()
+        private IDocumentStorage CreateCloudFileStorage()
         {
-            return new CloudFileStorage(this.blobService.Object, this.optionsMonitor);
+            return new AzureDocumentStorage(this.blobService.Object, this.optionsMonitor);
         }
     }
 }
