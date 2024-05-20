@@ -8,12 +8,12 @@ namespace AzureBlobStorage.Authenticators
     /// <summary>
     /// The authenticator class for Authentication clients via access key
     /// </summary>
-    public class AzureAccessKeyBlobAuthenticator : AzureBlobAuthenticator, IAzureBlobAuthenticator
+    public class AzureAccessKeyBlobAuthenticator : AzureBlobAuthenticator
     {
         /// <summary>
         /// The options for holding access key configuration
         /// </summary>
-        private readonly AzureAccessKeyOptions options;
+        protected AzureAccessKeyOptions AuthenticationOptions { get; private init; }
 
         /// <summary>
         /// The constructor for creating an instance using Azure Access Key options
@@ -21,16 +21,16 @@ namespace AzureBlobStorage.Authenticators
         /// <param name="options">The Azure access key options</param>
         public AzureAccessKeyBlobAuthenticator(IOptionsMonitor<AzureAccessKeyOptions> options)
         {
-            this.options = options.CurrentValue;
+            this.AuthenticationOptions = options.CurrentValue;
         }
 
         /// <summary>
-        /// Au
+        /// Authenticates the Azure Blob Client
         /// </summary>
-        /// <returns></returns>
-        public virtual BlobServiceClient AuthenticateClient()
+        /// <returns>Authenticated client if the process of authentication does not fail</returns>
+        public override BlobServiceClient AuthenticateClient()
         {
-            return base.Authenticate(this.options.AccessKey);
+            return this.Authenticate(this.AuthenticationOptions.AccessKey);
         }
     }
 }
