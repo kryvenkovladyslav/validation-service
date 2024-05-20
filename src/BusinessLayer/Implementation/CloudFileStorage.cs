@@ -22,7 +22,7 @@ namespace BusinessLayer.Implementation
         /// <summary>
         /// The options for configuring file storage
         /// </summary>
-        private readonly FileStoreConfigurationOptions fileStorageConfiguration;
+        private readonly DocumentStorageConfiguration fileStorageConfiguration;
 
         /// <summary>
         /// The constructor for initialization an instance
@@ -30,7 +30,7 @@ namespace BusinessLayer.Implementation
         /// <param name="azureBlobService"></param>
         /// <param name="fileStorageConfiguration"></param>
         /// <exception cref="ArgumentNullException">The ArgumentNullException is thrown if Azure service is null or options in not provided</exception>
-        public CloudFileStorage(IAzureBlobService azureBlobService, IOptionsMonitor<FileStoreConfigurationOptions> fileStorageConfiguration)
+        public CloudFileStorage(IAzureBlobService azureBlobService, IOptionsMonitor<DocumentStorageConfiguration> fileStorageConfiguration)
         {
             ArgumentNullException.ThrowIfNull(fileStorageConfiguration, nameof(fileStorageConfiguration));
 

@@ -15,7 +15,7 @@ namespace BusinessLayerTests.Tests
     public sealed class CloudFileStorageTests
     {
         private readonly Mock<IAzureBlobService> blobService;
-        private readonly IOptionsMonitor<FileStoreConfigurationOptions> optionsMonitor;
+        private readonly IOptionsMonitor<DocumentStorageConfiguration> optionsMonitor;
 
         public CloudFileStorageTests()
         {
@@ -26,7 +26,7 @@ namespace BusinessLayerTests.Tests
         [Fact]
         public void FileStoreConfigurationOptions_HasActualPositionValue_ReturnsTrue()
         {
-            Assert.True(!string.IsNullOrEmpty(FileStoreConfigurationOptions.Position));
+            Assert.True(!string.IsNullOrEmpty(DocumentStorageConfiguration.Position));
         }
 
         [Fact]
@@ -77,10 +77,10 @@ namespace BusinessLayerTests.Tests
             await Assert.ThrowsAsync<AzureBlobNotExistException>(result);
         }
 
-        private IOptionsMonitor<FileStoreConfigurationOptions> CreateFileStoreConfigurationOptions(string containerName)
+        private IOptionsMonitor<DocumentStorageConfiguration> CreateFileStoreConfigurationOptions(string containerName)
         {
-            var optionsMonitor = new Mock<IOptionsMonitor<FileStoreConfigurationOptions>>();
-            optionsMonitor.Setup(monitor => monitor.CurrentValue).Returns(new FileStoreConfigurationOptions { ContainerName = containerName });
+            var optionsMonitor = new Mock<IOptionsMonitor<DocumentStorageConfiguration>>();
+            optionsMonitor.Setup(monitor => monitor.CurrentValue).Returns(new DocumentStorageConfiguration { ContainerName = containerName });
             return optionsMonitor.Object;
         }
 
