@@ -15,7 +15,7 @@ namespace AzureBlobStorage.Services
         /// <summary>
         /// The options for holding Azure Blob Client
         /// </summary>
-        private readonly BlobServiceClient client;
+        protected BlobServiceClient Client { get; private init; }
 
         /// <summary>
         /// The constructor for creating an instance using Azure authenticator options
@@ -24,7 +24,7 @@ namespace AzureBlobStorage.Services
         public AzureBlobService(IAzureBlobAuthenticator authenticator)
         {
             ArgumentNullException.ThrowIfNull(authenticator, nameof(authenticator));
-            this.client = authenticator.AuthenticateClient();
+            this.Client = authenticator.AuthenticateClient();
         }
 
         /// <summary>
@@ -38,7 +38,7 @@ namespace AzureBlobStorage.Services
             token.ThrowIfCancellationRequested();
             ArgumentNullException.ThrowIfNull(requestModel, nameof(requestModel));
 
-            var containerClient = this.client.GetBlobContainerClient(requestModel.ContainerName);
+            var containerClient = this.Client.GetBlobContainerClient(requestModel.ContainerName);
             var blobClient = containerClient.GetBlobClient(requestModel.RequiredFilePath);
 
             try
@@ -65,7 +65,7 @@ namespace AzureBlobStorage.Services
             token.ThrowIfCancellationRequested();
             ArgumentNullException.ThrowIfNull(requestModel, nameof(requestModel));
 
-            var containerClient = this.client.GetBlobContainerClient(requestModel.ContainerName);
+            var containerClient = this.Client.GetBlobContainerClient(requestModel.ContainerName);
             var blobClient = containerClient.GetBlobClient(requestModel.RequiredFilePath);
 
             try

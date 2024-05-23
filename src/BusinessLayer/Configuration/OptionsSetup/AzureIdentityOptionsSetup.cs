@@ -1,6 +1,7 @@
 ﻿using AzureBlobStorage.Options;
 using BusinessLayer.Configuration.Options;
 using Microsoft.Extensions.Options;
+using System;
 
 namespace BusinessLayer.Configuration.OptionsSetup
 {
@@ -20,7 +21,8 @@ namespace BusinessLayer.Configuration.OptionsSetup
         /// <param name="configuration">The options for configuring Azure Access Key</param>
         public AzureIdentityOptionsSetup(IOptionsMonitor<AzureIdentityConfigurationOptions> configuration)
         {
-            this.configuration = configuration.CurrentValue;
+            ArgumentNullException.ThrowIfNull(configuration, nameof(configuration));
+            this.configuration = configuration.CurrentValue ?? throw new ArgumentNullException(nameof(configuration));
         }
 
         /// <summary>
