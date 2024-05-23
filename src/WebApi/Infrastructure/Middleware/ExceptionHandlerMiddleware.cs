@@ -7,7 +7,7 @@ using System.Text.Json;
 
 namespace WebApi.Infrastructure.Middleware
 {
-    public class ExceptionHandlerMiddleware : BaseMiddleware
+    public sealed class ExceptionHandlerMiddleware : BaseMiddleware
     {
         private readonly string contentType;
 
@@ -38,6 +38,7 @@ namespace WebApi.Infrastructure.Middleware
                     Status = StatusCodes.Status400BadRequest,
                     Title = "Error",
                 };
+
                 await response.WriteAsync(JsonSerializer.Serialize(problemDetail));
                 return;
             }

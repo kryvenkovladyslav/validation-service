@@ -1,43 +1,95 @@
 ﻿using Domain.Abstract;
 using AzureBlobStorage.Extensions;
 using BusinessLayer.Implementation;
-using BusinessLayer.Implementation.Validators;
 using BusinessLayer.Configuration.OptionsSetup;
 using Microsoft.Extensions.DependencyInjection;
 using BusinessLayer.Implementation.SettingsProviders;
+using BusinessLayer.Implementation.ExternalResourceProviders;
+using BusinessLayer.Implementation.ValidationStrategies;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using System.Xml;
 
 namespace DependencyInjection.Extensions
 {
     public static class IServiceCollectionExtensions
     {
         /// <summary>
-        /// Adds all required business services for the system
+        /// Registers all required services for the application
         /// </summary>
+        /// <param name="services"><see cref="IServiceCollection"/> collection for registering services</param>
+        /// <returns></returns>
         public static IServiceCollection AddBusinessServices(this IServiceCollection services)
         {
             ConfigureAllApplicationOptions(services);
+
             services.AddAzureBlobStorage().AddAzureAccessKeyAuthentication();
 
-            services.AddScoped<IFileStorage, CloudFileStorage>();
+            TryAddScopedDocumentStorage<IDocumentStorage, AzureDocumentStorage>(services);
+            TryAddScopedDocumentStorage<IAzureDocumentStorage, AzureDocumentStorage>(services);
+            TryAddScopedDocumentValidators<IXmlDocumentValidator, XmlDocumentValidator, XmlReaderSettings>(services);
+            TryAddScopedValidationSettingsCreator<IDtdValidationSettingsCreator, DtdValidationSettingsCreator>(services);
+            TryAddScopedValidationSettingsCreator<IXmlSchemaValidationSettingsCreator, XmlSchemaValidationSettingsCreator>(services);
 
-            services.AddScoped<IValidationXmlSettingProvider<DtdDocumentValidationStrategy>, DtdValidationSettingsProvider>();
-            services.AddScoped<IValidationXmlSettingProvider<SchemaDocumentValidationStrategy>, SchemaValidationSettingsProvider>();
+            TryAddScopedExternalXmlResourceProviders(services);
+            TryAddScopedValidationXmlSettingProviders(services);
+            TryAddScopedXmlValidationStrategies(services);
 
-            services.AddScoped<IDocumentValidationStrategy, DtdDocumentValidationStrategy>();
-            services.AddScoped<IDocumentValidationStrategy, SchemaDocumentValidationStrategy>();
+            TryAddScopedValidationManager<IXmlValidationManager, XmlValidationManager>(services);
 
             return services;
         }
 
-        /// <summary>
-        /// Configures Azure Options
-        /// </summary>
-        private static IServiceCollection ConfigureAllApplicationOptions(IServiceCollection services)
+        private static void TryAddScopedValidationManager<TInterface, TImplementation>(IServiceCollection services)
+            where TImplementation : class, TInterface
+            where TInterface : class, IXmlValidationManager
+        {
+            services.TryAddScoped<TInterface, TImplementation>();
+        }
+
+        private static void TryAddScopedValidationSettingsCreator<TInterface, TImplementation>(IServiceCollection services)
+            where TImplementation : class, TInterface
+            where TInterface : class, IXmlValidationSettingsCreator
+        {
+            services.TryAddScoped<TInterface, TImplementation>();
+        }
+
+        private static void TryAddScopedDocumentValidators<TInterface, TImplementation, TSettings>(IServiceCollection services)
+            where TSettings : class
+            where TImplementation : class, TInterface
+            where TInterface : class, IDocumentValidator<TSettings>
+        {
+            services.TryAddScoped<TInterface, TImplementation>();
+        }
+
+        private static void TryAddScopedDocumentStorage<TInterface, TImplementation>(IServiceCollection services)
+            where TImplementation : class, TInterface
+            where TInterface : class, IDocumentStorage
+        {
+            services.TryAddScoped<TInterface, TImplementation>();
+        }
+
+        private static void TryAddScopedXmlValidationStrategies(IServiceCollection services)
+        {
+            services.AddScoped<IXmlDocumentValidationStrategy, DtdXmlDocumentValidationStrategy>();
+            services.AddScoped<IXmlDocumentValidationStrategy, SchemaXmlDocumentValidationStrategy>();
+        }
+
+        private static void TryAddScopedValidationXmlSettingProviders(IServiceCollection services)
+        {
+            services.AddScoped<IValidationXmlSettingProvider<IXmlDocumentValidationStrategy>, AzureDtdValidationSettingsProvider>();
+            services.AddScoped<IValidationXmlSettingProvider<IXmlDocumentValidationStrategy>, AzureXmlSchemaValidationSettingsProvider>();
+        }
+
+        private static void TryAddScopedExternalXmlResourceProviders(IServiceCollection services)
+        {
+            services.TryAddScoped<IAzureExternalDtdProvider, AzureExternalDtdProvider>();
+            services.TryAddScoped<IAzureExternalXmlSchemaProvider, AzureExternalXmlSchemaProvider>();
+        }
+
+        private static void ConfigureAllApplicationOptions(IServiceCollection services)
         {
             services.ConfigureOptions<AzureIdentityOptionsSetup>();
             services.ConfigureOptions<AzureAccessKeyOptionsSetup>();
-
-            return services;
         }
     }
 }

@@ -3,12 +3,12 @@
     /// <summary>
     /// The options for configuring Cloud File Storage
     /// </summary>
-    public sealed class FileStoreConfigurationOptions
+    public sealed class DocumentStorageConfigurationOptions
     {
         /// <summary>
         /// A required name of options settings in appsettings
         /// </summary>
-        public static string Position { get; } = nameof(FileStoreConfigurationOptions);
+        public static string Position { get; } = nameof(DocumentStorageConfigurationOptions);
 
         /// <summary>
         /// A required key for accessing the values

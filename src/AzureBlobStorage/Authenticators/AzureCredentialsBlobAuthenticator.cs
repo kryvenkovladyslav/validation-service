@@ -10,12 +10,12 @@ namespace AzureBlobStorage.Authenticators
     /// <summary>
     /// The authenticator class for Authentication clients via Azure Credentials
     /// </summary>
-    public class AzureCredentialsBlobAuthenticator : AzureBlobAuthenticator, IAzureBlobAuthenticator
+    public class AzureCredentialsBlobAuthenticator : AzureBlobAuthenticator
     {
         /// <summary>
         /// The options for holding Azure credentials configuration
         /// </summary>
-        private readonly AzureIdentityOptions options;
+        protected AzureIdentityOptions AuthenticationOptions { get; private init; }
 
         /// <summary>
         /// The constructor for creating an instance using Azure credentials options
@@ -23,7 +23,7 @@ namespace AzureBlobStorage.Authenticators
         /// <param name="options">The Azure credentials options</param>
         public AzureCredentialsBlobAuthenticator(IOptionsMonitor<AzureIdentityOptions> options)
         {
-            this.options = options.CurrentValue;
+            this.AuthenticationOptions = options.CurrentValue;
         }
 
         /// <summary>
@@ -31,16 +31,16 @@ namespace AzureBlobStorage.Authenticators
         /// </summary>
         /// <param name="arguments">The parameters could be thrown in constructor</param>
         /// <returns>Authenticated client if the process of authentication does not fail</returns>
-        public virtual BlobServiceClient AuthenticateClient()
+        public override BlobServiceClient AuthenticateClient()
         {
             var parameters = new object[]
             {
-                new Uri(this.options.FullyQualifiedNamespace),
+                new Uri(this.AuthenticationOptions.FullyQualifiedNamespace),
                 new DefaultAzureCredential(),
                 new BlobClientOptions()
             };
 
-            return base.Authenticate(parameters);
+            return this.Authenticate(parameters);
         }
     }
 }

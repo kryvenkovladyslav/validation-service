@@ -4,21 +4,21 @@ using WebApi.Models;
 using Domain.Abstract;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
 
 namespace WebApi.Controllers
 {
     [ApiController]
     [Route("/api/[controller]/[action]")]
-    public class ValidationController : ControllerBase
+    public sealed class ValidationController : ControllerBase
     {
-        private readonly IFileStorage fileStorage;
-        private readonly IEnumerable<IDocumentValidationStrategy> validators;
+        private readonly IDocumentStorage documentStorage;
 
-        public ValidationController(IFileStorage fileStorage, IEnumerable<IDocumentValidationStrategy> validators)
+        private readonly IXmlValidationManager validationManager;
+
+        public ValidationController(IDocumentStorage documentStorage, IXmlValidationManager validationManager)
         {
-            this.fileStorage = fileStorage ?? throw new ArgumentNullException(nameof(fileStorage));
-            this.validators = validators ?? throw new ArgumentNullException(nameof(validators));
+            this.documentStorage = documentStorage ?? throw new ArgumentNullException(nameof(documentStorage));
+            this.validationManager = validationManager ?? throw new ArgumentNullException(nameof(validationManager));
         }
 
         [HttpPost]
@@ -29,23 +29,10 @@ namespace WebApi.Controllers
                 return this.BadRequest(this.ModelState);
             }
 
-            if(!await this.fileStorage.FindExistsAsync(model.DocumentFullPath)) 
-            {
-                return this.BadRequest("The blob does not exist");
-            }
+            using var documentStream = await this.documentStorage.FindByFullPathAsync(model.DocumentFullPath);
+            var validationResult = await this.validationManager.ValidateDocumentAsync(model.DocumentFullPath, documentStream);
 
-            using var stream = await this.fileStorage.FindByFullPathAsync(model.DocumentFullPath);
-
-            foreach (var validator in this.validators)
-            {
-                if (validator.CanProcess(stream))
-                {
-                    var result = await validator.ProcessAsync(new RequestModel(model.DocumentFullPath, stream));
-                    return this.Ok(result);
-                }
-            }
-
-            return this.BadRequest(model);
+            return this.Ok(validationResult);
         }
     }
 }

@@ -4,7 +4,7 @@ namespace WebApi.Infrastructure.Middleware
 {
     public abstract class BaseMiddleware
     {
-        public RequestDelegate Next { get; set; }
+        protected RequestDelegate Next { get; private init; }
 
         public BaseMiddleware(RequestDelegate next) 
         {

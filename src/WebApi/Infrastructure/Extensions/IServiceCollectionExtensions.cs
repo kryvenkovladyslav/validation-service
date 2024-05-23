@@ -8,9 +8,10 @@ namespace WebApi.Infrastructure.Extensions
     {
         public static IServiceCollection ConfigureAllApplicationOptions(this IServiceCollection services, IConfiguration configuration)
         {
-            services.Configure<FileStoreConfigurationOptions>(configuration.GetSection(FileStoreConfigurationOptions.Position));
             services.Configure<AzureIdentityConfigurationOptions>(configuration.GetSection(AzureIdentityConfigurationOptions.Position));
             services.Configure<AzureAccessKeyConfigurationOptions>(configuration.GetSection(AzureAccessKeyConfigurationOptions.Position));
+            services.Configure<DocumentStorageConfigurationOptions>(configuration.GetSection(DocumentStorageConfigurationOptions.Position));
+            services.Configure<AzureExternalResourceProviderConfigurationOptions>(configuration.GetSection(AzureExternalResourceProviderConfigurationOptions.Position));
 
             return services;
         }

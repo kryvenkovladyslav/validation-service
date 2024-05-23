@@ -2,6 +2,10 @@
 {
     public static class DefaultsEctd
     {
+        public static char Space { get; private set; } = ' ';
+
+        public static char SlashChar { get; private set; } = '/';
+
         public static string Slash { get; private set; } = "/";
 
         public static string DtdSegment { get; private set; } = "dtd";
